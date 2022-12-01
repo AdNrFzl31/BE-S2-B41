@@ -67,9 +67,6 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// fmt.Println(accountID)
-	// fmt.Println(UserCart)
-
 	var Total = 0
 	for _, i := range UserCart {
 		Total += i.Subtotal

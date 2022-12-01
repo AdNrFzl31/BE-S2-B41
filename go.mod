@@ -19,4 +19,8 @@ require (
 	gorm.io/gorm v1.24.2
 )
 
-require github.com/joho/godotenv v1.4.0 // indirect
+require (
+	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/gorilla/handlers v1.5.1 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
+)

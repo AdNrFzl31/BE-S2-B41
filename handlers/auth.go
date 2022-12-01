@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -28,13 +29,24 @@ func HandlerAuth(AuthRepository repositories.AuthRepository) *handlerAuth {
 func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(authdto.RegisterRequest)
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
+	dataContex := r.Context().Value("dataFile")
+	filename := dataContex.(string)
+
+	// price, _ := strconv.Atoi(r.FormValue("price"))
+	request := authdto.RegisterRequest{
+		Fullname:  r.FormValue("fullname"),
+		Email:     r.FormValue("email"),
+		Password:  r.FormValue("password"),
+		ImgProfil: os.Getenv("PATH_FILE") + filename,
 	}
+
+	// request := new(authdto.RegisterRequest)
+	// if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
 
 	validation := validator.New()
 	err := validation.Struct(request)
@@ -56,7 +68,8 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		Fullname: request.Fullname,
 		Email:    request.Email,
 		Password: password,
-		Role:     "user", //beda
+		Image:    request.ImgProfil,
+		Role:     "user",
 	}
 
 	_, err = h.AuthRepository.Register(user)
@@ -89,14 +102,13 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	user := models.User{
 		Email:    request.Email,
 		Password: request.Password,
-		// Role:     "user", //beda
 	}
 
 	// Check email
 	user, err := h.AuthRepository.Login(user.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+		response := dto.ErrorResult{Status: "Failed", Message: "Email failed"}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -105,7 +117,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	isValid := bcrypt.CheckPasswordHash(request.Password, user.Password)
 	if !isValid {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Status: "Failed", Message: "wrong email or password"}
+		response := dto.ErrorResult{Status: "Failed", Message: "Password Failed"}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -127,10 +139,37 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 		Fullname: user.Fullname,
 		Email:    user.Email,
 		Token:    token,
+		Role:     user.Role,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	response := dto.SuccessResult{Status: "Success", Data: loginResponse}
 	json.NewEncoder(w).Encode(response)
+}
 
+func (h *handlerAuth) CheckAuth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
+	// Check User by Id
+	user, err := h.AuthRepository.Getuser(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	CheckAuthResponse := authdto.CheckAuthResponse{
+		Id:       user.ID,
+		Fullname: user.Fullname,
+		Email:    user.Email,
+		Role:     user.Role,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	response := dto.SuccessResult{Status: "Succes", Data: CheckAuthResponse}
+	json.NewEncoder(w).Encode(response)
 }

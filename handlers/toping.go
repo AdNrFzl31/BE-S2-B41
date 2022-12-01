@@ -19,7 +19,7 @@ type handlerToping struct {
 	TopingRepository repositories.TopingRepository
 }
 
-// Create `path_file` Global variable here ...
+// Create `path_file` Global variable
 var path_files = os.Getenv("PATH_FILE")
 
 func HandlerToping(TopingRepository repositories.TopingRepository) *handlerToping {
@@ -37,7 +37,7 @@ func (h *handlerToping) FindTopings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create Embed Path File on Image property here ...
+	// Create Embed Path File on Image property
 	for i, p := range topings {
 		topings[i].Image = path_files + p.Image
 	}
@@ -61,7 +61,7 @@ func (h *handlerToping) GetToping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create Embed Path File on Image property here ...
+	// Create Embed Path File on Image property
 	toping.Image = path_files + toping.Image
 
 	w.WriteHeader(http.StatusOK)
@@ -84,15 +84,15 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get dataFile from midleware and store to filename variable here ...
-	dataContex := r.Context().Value("dataFile") // add this code
-	filename := dataContex.(string)             // add this code
+	// Get dataFile from midleware and store to filename variable
+	dataContex := r.Context().Value("dataFile")
+	filename := dataContex.(string)
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := topingdto.AddToping{
 		Nametoping: r.FormValue("nametoping"),
 		Price:      price,
-		Image:      filename,
+		Image:      os.Getenv("PATH_FILE") + filename,
 	}
 
 	validation := validator.New()
@@ -108,7 +108,6 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 		Nametoping: request.Nametoping,
 		Price:      request.Price,
 		Image:      request.Image,
-		// UserID:      userId,
 	}
 
 	toping, err = h.TopingRepository.CreateToping(toping)
@@ -129,7 +128,7 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	dataContex := r.Context().Value("dataFile") // add this code
+	dataContex := r.Context().Value("dataFile")
 	filename := dataContex.(string)
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
@@ -137,7 +136,7 @@ func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	request := topingdto.UpdateToping{
 		Nametoping: r.FormValue("nametoping"),
 		Price:      price,
-		Image:      filename,
+		Image:      os.Getenv("PATH_FILE") + filename,
 	}
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
@@ -227,82 +226,3 @@ func convertResponseToping(u models.Toping) topingdto.TopingResponseDelete {
 		ID: u.ID,
 	}
 }
-
-// func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-// 	request := new(topingdto.TopingRequest)
-// 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-// 	validation := validator.New()
-// 	err := validation.Struct(request)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		response := dto.ErrorResult{Status: "Server Error", Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-// 	toping := models.Toping{
-// 		Name:   request.Name,
-// 		Desc:   request.Desc,
-// 		Price:  request.Price,
-// 		Image:  request.Image,
-// 		Qty:    request.Qty,
-// 		UserID: request.UserID,
-// 	}
-// 	toping, err = h.TopingRepository.CreateToping(toping)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		response := dto.ErrorResult{Status: "Server Error", Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-// 	toping, _ = h.TopingRepository.GetToping(toping.ID)
-// 	w.WriteHeader(http.StatusOK)
-// 	response := dto.SuccessResult{Status: "Success", Data: toping}
-// 	json.NewEncoder(w).Encode(response)
-// }
-
-// func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-// 	// get data user token
-// 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
-// 	userId := int(userInfo["id"].(float64))
-// 	request := new(topingdto.TopingRequest)
-// 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-// 	validation := validator.New()
-// 	err := validation.Struct(request)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		response := dto.ErrorResult{Status: "Server Error", Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-// 	toping := models.Toping{
-// 		Name:   request.Name,
-// 		Desc:   request.Desc,
-// 		Price:  request.Price,
-// 		Image:  request.Image,
-// 		Qty:    request.Qty,
-// 		UserID: userId,
-// 	}
-// 	toping, err = h.TopingRepository.CreateToping(toping)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		response := dto.ErrorResult{Status: "Server Error", Message: err.Error()}
-// 		json.NewEncoder(w).Encode(response)
-// 		return
-// 	}
-// 	toping, _ = h.TopingRepository.GetToping(toping.ID)
-// 	w.WriteHeader(http.StatusOK)
-// 	response := dto.SuccessResult{Status: "Success", Data: toping}
-// 	json.NewEncoder(w).Encode(response)
-// }

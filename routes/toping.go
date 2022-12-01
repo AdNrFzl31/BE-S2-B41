@@ -13,10 +13,10 @@ func TopingRoutes(r *mux.Router) {
 	TopingRepository := repositories.RepositoryToping(mysql.DB)
 	h := handlers.HandlerToping(TopingRepository)
 
-	r.HandleFunc("/topings", h.FindTopings).Methods("GET") // add this code
+	r.HandleFunc("/topings", h.FindTopings).Methods("GET")
 	r.HandleFunc("/toping/{id}", h.GetToping).Methods("GET")
-	r.HandleFunc("/toping", middleware.Auth(middleware.UploadFile(h.CreateToping))).Methods("POST")       // add this code
-	r.HandleFunc("/toping/{id}", middleware.Auth(h.DeleteToping)).Methods("DELETE")                       // add this code
-	r.HandleFunc("/toping/{id}", middleware.Auth(middleware.UploadFile(h.UpdateToping))).Methods("PATCH") // add this code
+	r.HandleFunc("/toping", middleware.Auth(middleware.UploadFile(h.CreateToping))).Methods("POST")
+	r.HandleFunc("/toping/{id}", middleware.Auth(h.DeleteToping)).Methods("DELETE")
+	r.HandleFunc("/toping/{id}", middleware.Auth(middleware.UploadFile(h.UpdateToping))).Methods("PATCH")
 
 }

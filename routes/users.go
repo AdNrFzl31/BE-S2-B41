@@ -2,6 +2,7 @@ package routes
 
 import (
 	"BE-S2-B41/handlers"
+	"BE-S2-B41/pkg/middleware"
 	"BE-S2-B41/pkg/mysql"
 	"BE-S2-B41/repositories"
 
@@ -14,7 +15,5 @@ func UserRoutes(r *mux.Router) {
 
 	r.HandleFunc("/users", h.FindUsers).Methods("GET")
 	r.HandleFunc("/user/{id}", h.GetUser).Methods("GET")
-	// r.HandleFunc("/user", h.CreateUser).Methods("POST")
-	// r.HandleFunc("/user/{id}", h.UpdateUser).Methods("PATCH")
-	r.HandleFunc("/user/{id}", h.DeleteUser).Methods("DELETE")
+	r.HandleFunc("/user/{id}", middleware.Auth(h.DeleteUser)).Methods("DELETE")
 }

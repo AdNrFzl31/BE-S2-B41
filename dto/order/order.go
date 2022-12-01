@@ -11,9 +11,3 @@ type CreateOrder struct {
 type UpdateOrder struct {
 	Qty int `json:"qty" form:"qty"`
 }
-
-// type OrderResponse struct {
-// 	ID       int `json:"id"`
-// 	QTY      int `json:"qty"`
-// 	SubTotal int `json:"subtotal"`
-// }
