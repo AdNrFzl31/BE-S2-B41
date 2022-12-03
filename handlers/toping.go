@@ -5,11 +5,15 @@ import (
 	topingdto "BE-S2-B41/dto/toping"
 	"BE-S2-B41/models"
 	"BE-S2-B41/repositories"
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
@@ -38,9 +42,10 @@ func (h *handlerToping) FindTopings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create Embed Path File on Image property
-	for i, p := range topings {
-		topings[i].Image = path_files + p.Image
-	}
+	// for i, p := range topings {
+	// 	imagePath := os.Getenv("PATH_FILE") + p.Image
+	// 	topings[i].Image = imagePath
+	// }
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: topings}
@@ -86,13 +91,13 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 
 	// Get dataFile from midleware and store to filename variable
 	dataContex := r.Context().Value("dataFile")
-	filename := dataContex.(string)
+	filepath := dataContex.(string)
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := topingdto.AddToping{
 		Nametoping: r.FormValue("nametoping"),
 		Price:      price,
-		Image:      os.Getenv("PATH_FILE") + filename,
+		Image:      filepath,
 	}
 
 	validation := validator.New()
@@ -104,10 +109,26 @@ func (h *handlerToping) CreateToping(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Declare Context Background, Cloud Name, API Key, API Secret ...
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	toping := models.Toping{
 		Nametoping: request.Nametoping,
 		Price:      request.Price,
-		Image:      request.Image,
+		Image:      resp.SecureURL,
 	}
 
 	toping, err = h.TopingRepository.CreateToping(toping)
@@ -129,14 +150,14 @@ func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	dataContex := r.Context().Value("dataFile")
-	filename := dataContex.(string)
+	filepath := dataContex.(string)
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 
 	request := topingdto.UpdateToping{
 		Nametoping: r.FormValue("nametoping"),
 		Price:      price,
-		Image:      os.Getenv("PATH_FILE") + filename,
+		Image:      filepath,
 	}
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
@@ -150,6 +171,22 @@ func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 		response := dto.ErrorResult{Status: "Failed", Message: "you're not admin"}
 		json.NewEncoder(w).Encode(response)
 		return
+	}
+
+	// Declare Context Background, Cloud Name, API Key, API Secret ...
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
+
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
 	toping, err := h.TopingRepository.GetToping(int(id))
@@ -169,7 +206,7 @@ func (h *handlerToping) UpdateToping(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if request.Image != "" {
-		toping.Image = request.Image
+		toping.Image = resp.SecureURL
 	}
 
 	data, err := h.TopingRepository.UpdateToping(toping)

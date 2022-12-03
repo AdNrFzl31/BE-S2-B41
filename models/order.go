@@ -7,7 +7,7 @@ type Order struct {
 	Qty       int                  `json:"qty" gorm:"type:int"`
 	Subtotal  int                  `json:"subtotal" gorm:"type: int"`
 	ProductID int                  `json:"product_id"`
-	Product   ProductResponse      `json:"product" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Product   Product              `json:"product" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Toping    []Toping             `json:"toppings" gorm:"many2many:order_toppings; constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	BuyyerID  int                  `json:"buyyer_id"`
 	Buyyer    UsersProfileResponse `json:"buyyer" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`

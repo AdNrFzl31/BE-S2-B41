@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	dto "BE-S2-B41/dto/result"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
@@ -28,12 +30,36 @@ func UploadFile(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		defer file.Close()
-		// fmt.Printf("Uploaded File: %+v\n", handler.Filename)
-		// fmt.Printf("File Size: %+v\n", handler.Size)
-		// fmt.Printf("MIME Header: %+v\n", handler.Header)
-		const MAX_UPLOAD_SIZE = 10 << 20 // 10MB
+
+		// setup file type filtering
+		buff := make([]byte, 512)
+		_, err = file.Read(buff)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			response := dto.ErrorResult{Status: "Server Error", Message: err.Error()}
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		filetype := http.DetectContentType(buff)
+		if filetype != "image/jpeg" && filetype != "image/png" {
+			w.WriteHeader(http.StatusBadRequest)
+			response := dto.ErrorResult{Status: "Failed", Message: "The provided file format is not allowed. Please upload a JPEG or PNG image"}
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		_, err = file.Seek(0, io.SeekStart)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			response := dto.ErrorResult{Status: "Server Error", Message: err.Error()}
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
 		// Parse our multipart form, 10 << 20 specifies a maximum
 		// upload of 10 MB files.
+		const MAX_UPLOAD_SIZE = 10 << 20 // 10MB
 		r.ParseMultipartForm(MAX_UPLOAD_SIZE)
 		if r.ContentLength > MAX_UPLOAD_SIZE {
 			w.WriteHeader(http.StatusBadRequest)
@@ -64,10 +90,10 @@ func UploadFile(next http.HandlerFunc) http.HandlerFunc {
 		tempFile.Write(fileBytes)
 
 		data := tempFile.Name()
-		filename := data[8:] // split uploads/
+		// filename := data[8:] // split uploads/
 
 		// add filename to ctx
-		ctx := context.WithValue(r.Context(), "dataFile", filename)
+		ctx := context.WithValue(r.Context(), "dataFile", data)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

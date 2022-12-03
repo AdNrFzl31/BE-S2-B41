@@ -7,6 +7,7 @@ import (
 	"BE-S2-B41/pkg/bcrypt"
 	jwtToken "BE-S2-B41/pkg/jwt"
 	"BE-S2-B41/repositories"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,6 +15,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -30,14 +33,14 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	dataContex := r.Context().Value("dataFile")
-	filename := dataContex.(string)
+	filepath := dataContex.(string)
 
 	// price, _ := strconv.Atoi(r.FormValue("price"))
 	request := authdto.RegisterRequest{
 		Fullname:  r.FormValue("fullname"),
 		Email:     r.FormValue("email"),
 		Password:  r.FormValue("password"),
-		ImgProfil: os.Getenv("PATH_FILE") + filename,
+		ImgProfil: filepath,
 	}
 
 	// request := new(authdto.RegisterRequest)
@@ -64,11 +67,27 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
+	// Declare Context Background, Cloud Name, API Key, API Secret ...
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	user := models.User{
 		Fullname: request.Fullname,
 		Email:    request.Email,
 		Password: password,
-		Image:    request.ImgProfil,
+		Image:    resp.SecureURL,
 		Role:     "user",
 	}
 

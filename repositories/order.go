@@ -7,11 +7,11 @@ import (
 )
 
 type OrderRepository interface {
-	AddOrder(cart models.Order) (models.Order, error)
+	AddOrder(orders models.Order) (models.Order, error)
 	GetOrder(ID int) (models.Order, error)
 	FindOrder() ([]models.Order, error)
-	DelOrder(cart models.Order) (models.Order, error)
-	UpdateOrder(cart models.Order) (models.Order, error)
+	DelOrder(orders models.Order) (models.Order, error)
+	UpdateOrder(orders models.Order) (models.Order, error)
 	GetProductOrder(ID int) (models.Product, error)
 	GetTopingOrder(ID []int) ([]models.Toping, error)
 }
@@ -20,17 +20,17 @@ func RepositoryOrder(db *gorm.DB) *repository {
 	return &repository{db}
 }
 
-func (r *repository) AddOrder(cart models.Order) (models.Order, error) {
-	err := r.db.Create(&cart).Error
+func (r *repository) AddOrder(orders models.Order) (models.Order, error) {
+	err := r.db.Create(&orders).Error
 
-	return cart, err
+	return orders, err
 }
 
 func (r *repository) GetOrder(ID int) (models.Order, error) {
-	var cart models.Order
-	err := r.db.Preload("Product").Preload("Toping").Preload("Buyyer").First(&cart, ID).Error
+	var orders models.Order
+	err := r.db.Preload("Product").Preload("Toping").Preload("Buyyer").First(&orders, ID).Error
 
-	return cart, err
+	return orders, err
 }
 
 func (r *repository) FindOrder() ([]models.Order, error) {
@@ -40,16 +40,16 @@ func (r *repository) FindOrder() ([]models.Order, error) {
 	return orders, err
 }
 
-func (r *repository) DelOrder(cart models.Order) (models.Order, error) {
-	err := r.db.Delete(&cart).Error
+func (r *repository) DelOrder(orders models.Order) (models.Order, error) {
+	err := r.db.Delete(&orders).Error
 
-	return cart, err
+	return orders, err
 }
 
-func (r *repository) UpdateOrder(cart models.Order) (models.Order, error) {
-	err := r.db.Save(&cart).Error
+func (r *repository) UpdateOrder(orders models.Order) (models.Order, error) {
+	err := r.db.Save(&orders).Error
 
-	return cart, err
+	return orders, err
 }
 
 func (r *repository) GetProductOrder(ID int) (models.Product, error) {

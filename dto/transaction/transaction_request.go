@@ -11,3 +11,7 @@ type Checkout struct {
 	Status    string `json:"status" form:"status"`
 	AccountID int    `json:"account_id" form:"account_id"`
 }
+
+type UpdateTransaction struct {
+	Status string `json:"status" form:"status"`
+}

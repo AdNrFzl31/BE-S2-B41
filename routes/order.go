@@ -13,7 +13,7 @@ func OrderRoutes(r *mux.Router) {
 	orderRepository := repositories.RepositoryToping(mysql.DB)
 	h := handlers.HandlerOrder(orderRepository)
 
+	r.HandleFunc("/orders", h.FindOrders).Methods("GET")
 	r.HandleFunc("/order/{id}", middleware.Auth(h.AddOrder)).Methods("POST")
 	r.HandleFunc("/order/{id}", middleware.Auth(h.DeleteOrder)).Methods("DELETE")
-	r.HandleFunc("/orders", h.FindOrders).Methods("GET")
 }

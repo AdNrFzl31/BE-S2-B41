@@ -5,12 +5,15 @@ import (
 	dto "BE-S2-B41/dto/result"
 	"BE-S2-B41/models"
 	"BE-S2-B41/repositories"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
@@ -38,10 +41,11 @@ func (h *handlerProduct) FindProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create Embed Path File on Image property
-	for i, p := range products {
-		products[i].Image = os.Getenv("PATH_FILE") + p.Image
-	}
+	// // Create Embed Path File on Image property
+	// for i, p := range products {
+	// 	imagePath := os.Getenv("PATH_FILE") + p.Image
+	// 	products[i].Image = imagePath
+	// }
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: products}
@@ -62,8 +66,8 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create Embed Path File on Image property
-	product.Image = os.Getenv("PATH_FILE") + product.Image
+	// // Create Embed Path File on Image property
+	// product.Image = os.Getenv("PATH_FILE") + product.Image
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Status: "Success", Data: product}
@@ -85,13 +89,13 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 	// Get dataFile from midleware and store to filename variable
 	dataContex := r.Context().Value("dataFile")
-	filename := dataContex.(string)
+	filepath := dataContex.(string)
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := productdto.AddProduct{
 		Nameproduct: r.FormValue("nameproduct"),
 		Price:       price,
-		Image:       os.Getenv("PATH_FILE") + filename,
+		Image:       filepath,
 	}
 
 	validation := validator.New()
@@ -103,10 +107,26 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Declare Context Background, Cloud Name, API Key, API Secret ...
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	product := models.Product{
 		Nameproduct: request.Nameproduct,
 		Price:       request.Price,
-		Image:       os.Getenv("PATH_FILE") + filename,
+		Image:       resp.SecureURL,
 		// UserID:      userId,
 	}
 
@@ -141,14 +161,13 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	dataContex := r.Context().Value("dataFile")
-	filename := dataContex.(string)
-	fmt.Println(filename)
+	filepath := dataContex.(string)
 
 	price, _ := strconv.Atoi(r.FormValue("price"))
 	request := productdto.AddProduct{
 		Nameproduct: r.FormValue("nameproduct"),
 		Price:       price,
-		Image:       os.Getenv("PATH_FILE") + filename,
+		Image:       filepath,
 	}
 
 	validation := validator.New()
@@ -158,6 +177,22 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		response := dto.ErrorResult{Status: "Server Error", Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
+	}
+
+	// Declare Context Background, Cloud Name, API Key, API Secret ...
+	var ctx = context.Background()
+	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+	var API_KEY = os.Getenv("API_KEY")
+	var API_SECRET = os.Getenv("API_SECRET")
+
+	// Add your Cloudinary credentials ...
+	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+	// Upload file to Cloudinary ...
+	resp, err := cld.Upload.Upload(ctx, filepath, uploader.UploadParams{Folder: "waysbukcks"})
+
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
 	product, err := h.ProductRepository.GetProduct(int(id))
@@ -177,7 +212,7 @@ func (h *handlerProduct) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if request.Image != "" {
-		product.Image = request.Image
+		product.Image = resp.SecureURL
 	}
 
 	data, err := h.ProductRepository.UpdateProduct(product)
