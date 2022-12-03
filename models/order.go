@@ -3,16 +3,18 @@ package models
 import "time"
 
 type Order struct {
-	ID        int                  `json:"id" gorm:"primary_key:auto_increment"`
-	Qty       int                  `json:"qty" gorm:"type:int"`
-	Subtotal  int                  `json:"subtotal" gorm:"type: int"`
-	ProductID int                  `json:"product_id"`
-	Product   Product              `json:"product" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Toping    []Toping             `json:"toppings" gorm:"many2many:order_toppings; constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	BuyyerID  int                  `json:"buyyer_id"`
-	Buyyer    UsersProfileResponse `json:"buyyer" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	CreatedAt time.Time            `json:"-"`
-	UpdatedAt time.Time            `json:"-"`
+	ID            int                  `json:"id" gorm:"primary_key:auto_increment"`
+	Qty           int                  `json:"qty" gorm:"type:int"`
+	Subtotal      int                  `json:"subtotal" gorm:"type: int"`
+	TransactionID int                  `json:"transaction_id"`
+	Transaction   TransactionResponse  `json:"transaction" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ProductID     int                  `json:"product_id"`
+	Product       Product              `json:"product" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Toping        []Toping             `json:"toppings" gorm:"many2many:order_toppings; constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	BuyyerID      int                  `json:"buyyer_id"`
+	Buyyer        UsersProfileResponse `json:"buyyer" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	CreatedAt     time.Time            `json:"-"`
+	UpdatedAt     time.Time            `json:"-"`
 }
 
 type OrderResponse struct {

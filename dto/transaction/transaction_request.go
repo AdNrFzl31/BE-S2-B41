@@ -13,5 +13,10 @@ type Checkout struct {
 }
 
 type UpdateTransaction struct {
-	Status string `json:"status" form:"status"`
+	Name    string `json:"name" form:"name"`
+	Email   string `json:"email" form:"email"`
+	Phone   string `json:"phone" form:"phone"`
+	Poscode string `json:"poscode" form:"poscode"`
+	Address string `json:"address" form:"address"`
+	// Status  string `json:"status" form:"status"`
 }
