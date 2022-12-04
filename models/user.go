@@ -16,6 +16,7 @@ type User struct {
 type UsersProfileResponse struct {
 	ID       int    `json:"id"`
 	Fullname string `json:"fullname"`
+	Email    string `json:"email"`
 }
 
 func (UsersProfileResponse) TableName() string {

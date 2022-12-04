@@ -27,4 +27,5 @@ require (
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
+	github.com/midtrans/midtrans-go v1.3.6 // indirect
 )

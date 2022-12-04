@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
@@ -100,11 +101,14 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 	CekRequestTrans, _ := h.OrderRepository.GetTransactionID(buyerID)
 	// fmt.Println("cek buyerid = ", CekRequestTrans)
 
+	setTransID := time.Now().Unix()
+
 	var transID int
 	if CekRequestTrans.ID != 0 {
 		transID = CekRequestTrans.ID
 	} else {
 		requestTrans := models.Transaction{
+			ID:       int(setTransID),
 			Name:     "-",
 			Email:    "-",
 			Phone:    "-",
@@ -112,7 +116,7 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 			Address:  "-",
 			Status:   "Waiting",
 			Subtotal: 0,
-			BuyyerID:  buyerID,
+			BuyyerID: buyerID,
 		}
 		transOrder, _ := h.OrderRepository.RequestTransaction(requestTrans)
 		transID = transOrder.ID
