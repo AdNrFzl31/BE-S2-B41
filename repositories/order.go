@@ -47,7 +47,7 @@ func (r *repository) GetOrder(ID int) (models.Order, error) {
 
 func (r *repository) GetOrdersByID(ID int) ([]models.Order, error) {
 	var order []models.Order
-	err := r.db.Preload("Product").Preload("Topping").Find(&order, "transaction_id = ?", ID).Error
+	err := r.db.Preload("Product").Preload("Toping").Find(&order, "transaction_id = ?", ID).Error
 	return order, err
 }
 
@@ -65,7 +65,7 @@ func (r *repository) RequestTransaction(transaction models.Transaction) (models.
 
 func (r *repository) GetTransactionID(ID int) (models.Transaction, error) {
 	var transaction models.Transaction
-	err := r.db.Preload("Account").Preload("Order").Where("status = ? AND account_id = ?", "waiting", ID).First(&transaction).Error
+	err := r.db.Preload("Buyyer").Preload("Order").Where("status = ? AND buyyer_id = ?", "waiting", ID).First(&transaction).Error
 	return transaction, err
 }
 

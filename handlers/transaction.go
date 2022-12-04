@@ -44,9 +44,9 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
-	AccountID := int(userInfo["id"].(float64))
+	BuyyerID := int(userInfo["id"].(float64))
 
-	UserCart, err := h.TransactionRepository.GetOrderByUser(AccountID)
+	UserCart, err := h.TransactionRepository.GetOrderByUser(BuyyerID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Status: "Failed", Message: "User Account not make a Purchase!"}
@@ -60,15 +60,15 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dataTransaction := models.Transaction{
-		AccountID: AccountID,
-		Name:      request.Name,
-		Email:     request.Email,
-		Phone:     request.Phone,
-		PosCode:   request.Poscode,
-		Address:   request.Address,
-		Order:     UserCart,
-		Subtotal:  Total,
-		Status:    "Waiting",
+		BuyyerID: BuyyerID,
+		Name:     request.Name,
+		Email:    request.Email,
+		Phone:    request.Phone,
+		Poscode:  request.Poscode,
+		Address:  request.Address,
+		Order:    UserCart,
+		Subtotal: Total,
+		Status:   "Waiting",
 	}
 
 	transaction, err := h.TransactionRepository.Checkout(dataTransaction)
@@ -86,7 +86,7 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 		Name:     request.Name,
 		Email:    request.Email,
 		Phone:    request.Phone,
-		PosCode:  request.Poscode,
+		Poscode:  request.Poscode,
 		Address:  request.Address,
 		Order:    UserCart,
 		Subtotal: Total,
@@ -201,7 +201,7 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 		transaction.Phone = request.Phone
 	}
 	if request.Poscode != "" {
-		transaction.PosCode = request.Poscode
+		transaction.Poscode = request.Poscode
 	}
 	if request.Address != "" {
 		transaction.Address = request.Address
@@ -218,7 +218,7 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 	}
 
 	trans, _ := h.TransactionRepository.GetTransaction(data.ID)
-	orderUser, err := h.TransactionRepository.GetOrderByUser(data.AccountID)
+	orderUser, err := h.TransactionRepository.GetOrderByUser(data.BuyyerID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Status: "Failed", Message: err.Error()}
@@ -227,14 +227,14 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 	}
 
 	dataUpdate := models.Transaction{
-		ID:        trans.ID,
-		Name:      trans.Name,
-		Address:   trans.Address,
-		Status:    trans.Status,
-		Order:     orderUser,
-		Subtotal:  trans.Subtotal,
-		AccountID: trans.AccountID,
-		Account:   trans.Account,
+		ID:       trans.ID,
+		Name:     trans.Name,
+		Address:  trans.Address,
+		Status:   trans.Status,
+		Order:    orderUser,
+		Subtotal: trans.Subtotal,
+		BuyyerID: trans.BuyyerID,
+		Buyyer:   trans.Buyyer,
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -298,9 +298,9 @@ func (h *handlerTransaction) GetTransaction(w http.ResponseWriter, r *http.Reque
 		Phone:   trans.Phone,
 		Address: trans.Address,
 
-		Subtotal:  trans.Subtotal,
-		AccountID: trans.AccountID,
-		Status:    trans.Status,
+		Subtotal: trans.Subtotal,
+		BuyyerID: trans.BuyyerID,
+		Status:   trans.Status,
 	}
 
 	w.WriteHeader(http.StatusOK)

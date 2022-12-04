@@ -30,7 +30,7 @@ func (r *repository) Checkout(transaction models.Transaction) (models.Transactio
 
 func (r *repository) FindTransactions(ID int) ([]models.Transaction, error) {
 	var transactions []models.Transaction
-	err := r.db.Preload("Product").Preload("Toping").Preload("Account").Where("AccountID = ?", ID).Find(&transactions).Error
+	err := r.db.Preload("Product").Preload("Toping").Preload("Buyyer").Where("BuyyerID = ?", ID).Find(&transactions).Error
 	return transactions, err
 }
 
@@ -47,7 +47,7 @@ func (r *repository) GetOrderByUser(ID int) ([]models.Order, error) {
 
 func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
 	var transaction models.Transaction
-	err := r.db.Preload("Order").Preload("Account").First(&transaction, ID).Error
+	err := r.db.Preload("Order.Buyyer").Preload("Order").First(&transaction, ID).Error
 	return transaction, err
 }
 
@@ -64,7 +64,7 @@ func (r *repository) GetOrderByID() ([]models.Transaction, error) {
 
 func (r *repository) FindTransactionID(ID int) ([]models.Transaction, error) {
 	var transaction []models.Transaction
-	err := r.db.Preload("Account").Preload(clause.Associations).Preload("Order.Product").Preload("Order.Topping").Where("status != ? AND account_id = ?", "waiting", ID).Find(&transaction).Error
+	err := r.db.Preload("Buyyer").Preload(clause.Associations).Preload("Order.Product").Preload("Order.Topping").Where("status != ? AND buyyer_id = ?", "waiting", ID).Find(&transaction).Error
 
 	return transaction, err
 }

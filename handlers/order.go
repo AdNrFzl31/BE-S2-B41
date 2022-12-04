@@ -105,14 +105,14 @@ func (h *handlerOrder) AddOrder(w http.ResponseWriter, r *http.Request) {
 		transID = CekRequestTrans.ID
 	} else {
 		requestTrans := models.Transaction{
-			Name:      "-",
-			Email:     "-",
-			Phone:     "-",
-			PosCode:   "-",
-			Address:   "-",
-			Status:    "Waiting",
-			Subtotal:  0,
-			AccountID: buyerID,
+			Name:     "-",
+			Email:    "-",
+			Phone:    "-",
+			Poscode:  "-",
+			Address:  "-",
+			Status:   "Waiting",
+			Subtotal: 0,
+			BuyyerID:  buyerID,
 		}
 		transOrder, _ := h.OrderRepository.RequestTransaction(requestTrans)
 		transID = transOrder.ID

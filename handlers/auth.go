@@ -37,10 +37,10 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 
 	// price, _ := strconv.Atoi(r.FormValue("price"))
 	request := authdto.RegisterRequest{
-		Fullname:  r.FormValue("fullname"),
-		Email:     r.FormValue("email"),
-		Password:  r.FormValue("password"),
-		ImgProfil: filepath,
+		Fullname: r.FormValue("fullname"),
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
+		Image:    filepath,
 	}
 
 	// request := new(authdto.RegisterRequest)
@@ -159,6 +159,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 		Email:    user.Email,
 		Token:    token,
 		Role:     user.Role,
+		Image:    user.Image,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
