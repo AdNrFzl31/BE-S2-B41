@@ -17,5 +17,5 @@ func OrderRoutes(r *mux.Router) {
 	r.HandleFunc("/order/{id}", middleware.Auth(h.AddOrder)).Methods("POST")
 	r.HandleFunc("/order/{id}", middleware.Auth(h.DeleteOrder)).Methods("DELETE")
 	r.HandleFunc("/order/{id}", middleware.Auth(h.UpdateOrder)).Methods("PATCH")
-	r.HandleFunc("/orders-id", middleware.Auth(h.GetOrdersByID)).Methods("GET")
+	r.HandleFunc("/myorder", middleware.Auth(h.GetOrdersByID)).Methods("GET")
 }
