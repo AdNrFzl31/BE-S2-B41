@@ -55,7 +55,7 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 
 	// userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	// BuyyerID := int(userInfo["id"].(float64))
-
+	//
 	// UserCart, err := h.TransactionRepository.GetOrderByUser(BuyyerID)
 	// if err != nil {
 	// 	w.WriteHeader(http.StatusBadRequest)
@@ -63,12 +63,12 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 	// 	json.NewEncoder(w).Encode(response)
 	// 	return
 	// }
-
+	//
 	// var Total = 0
 	// for _, i := range UserCart {
 	// 	Total += i.Subtotal
 	// }
-
+	//
 	// dataTransaction := models.Transaction{
 	// 	BuyyerID: BuyyerID,
 	// 	Name:     request.Name,
@@ -80,7 +80,7 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 	// 	Subtotal: Total,
 	// 	Status:   "Waiting",
 	// }
-
+	//
 	// transaction, err := h.TransactionRepository.Checkout(dataTransaction)
 	// if err != nil {
 	// 	w.WriteHeader(http.StatusInternalServerError)
@@ -88,9 +88,9 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 	// 	json.NewEncoder(w).Encode(response)
 	// 	return
 	// }
-
+	//
 	// transactions, _ := h.TransactionRepository.GetTransaction(transaction.ID)
-
+	//
 	// data := models.Transaction{
 	// 	ID:       transactions.ID,
 	// 	Name:     request.Name,
@@ -101,7 +101,7 @@ func (h *handlerTransaction) Checkout(w http.ResponseWriter, r *http.Request) {
 	// 	Order:    UserCart,
 	// 	Subtotal: Total,
 	// }
-
+	//
 	// w.WriteHeader(http.StatusOK)
 	// response := dto.SuccessResult{Status: "success", Data: data}
 	// json.NewEncoder(w).Encode(response)
